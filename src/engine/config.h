@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 #include <stdlib.h>
-#include "../input/input.h"
+#include "input.h"
 
 typedef struct config_state {
     uint8_t keybinds[4];

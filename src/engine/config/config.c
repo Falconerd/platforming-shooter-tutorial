@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
-#include "config.h"
+#include "../config.h"
 #include "config_internal.h"
-#include "../input/input.h"
+#include "../input.h"
 
 static Config_State config_state;
 

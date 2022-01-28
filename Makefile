@@ -2,25 +2,25 @@ FLAGS = -std=c99 -g3 -pedantic -Wall -Wextra -Werror
 INCLUDE = -I./deps/include
 LIBS = -lSDL2
 
-build: ./src/main.c ./deps/src/glad.c ./io.o ./render.o ./render_init.o ./render_util.o ./input.o ./config.o ./config_init.o ./util.o
+build: ./src/main.c ./deps/src/glad.c ./io.o ./render.o ./render_init.o ./render_util.o ./input.o ./config.o ./config_init.o ./util.o ./physics.o
 	gcc $(FLAGS) $(INCLUDE) $(LIBS) $^
 
-io.o: ./src/io/io.c
+io.o: ./src/engine/io/io.c
 	gcc $(FLAGS) -c $^
 
-render.o: ./src/render/render.c ./src/render/render_util.c ./src/render/render_init.c
+render.o: ./src/engine/render/render.c ./src/engine/render/render_util.c ./src/engine/render/render_init.c
 	gcc $(FLAGS) -c $(INCLUDE) $^
 
-input.o: ./src/input/input.c
+input.o: ./src/engine/input/input.c
 	gcc $(FLAGS) -c $(INCLUDE) $^
 
-config.o: ./src/config/config.c ./src/config/config_init.c
+config.o: ./src/engine/config/config.c ./src/engine/config/config_init.c
 	gcc $(FLAGS) -c $^
 
-util.o: ./src/util/util.c
+util.o: ./src/engine/util/util.c
 	gcc $(FLAGS) -c $^
 
-player.o: ./src/game/player.c
+physics.o: ./src/engine/physics/physics.c
 	gcc $(FLAGS) -c $(INCLUDE) $^
 
 clean:

@@ -1,7 +1,7 @@
 #include <glad/glad.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../io/io.h"
+#include "../io.h"
 
 uint32_t render_shader_create(const char *vert_path, const char *frag_path) {
     int success;

@@ -1,8 +1,8 @@
 #include <string.h>
-#include "../io/io.h"
-#include "config.h"
+#include "../io.h"
+#include "../config.h"
 #include "config_internal.h"
-#include "../input/input.h"
+#include "../input.h"
 
 static char *config_get_value(char *string) {
     char *line = strdup(string);

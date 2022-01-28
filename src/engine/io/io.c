@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "io.h"
+#include "../io.h"
 
 char *io_file_read(const char *path) {
     FILE *fp = fopen(path, "r");

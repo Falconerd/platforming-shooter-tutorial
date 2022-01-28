@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
-#include "input.h"
+#include "../input.h"
 
 static Input_State input_state = {0};
 
