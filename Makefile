@@ -2,7 +2,7 @@ FLAGS = -std=c99 -g3 -pedantic -Wall -Wextra -Werror
 INCLUDE = -I./deps/include
 LIBS = -lSDL2
 
-build: ./src/main.c ./deps/src/glad.c ./io.o ./render.o ./render_init.o ./render_util.o ./input.o ./config.o ./config_init.o ./util.o ./physics.o
+build: ./src/main.c ./deps/src/glad.c ./io.o ./render.o ./render_init.o ./render_util.o ./input.o ./config.o ./config_init.o ./util.o ./physics.o ./physics_init.o ./time.o
 	gcc $(FLAGS) $(INCLUDE) $(LIBS) $^
 
 io.o: ./src/engine/io/io.c
@@ -20,7 +20,10 @@ config.o: ./src/engine/config/config.c ./src/engine/config/config_init.c
 util.o: ./src/engine/util/util.c
 	gcc $(FLAGS) -c $^
 
-physics.o: ./src/engine/physics/physics.c
+physics.o: ./src/engine/physics/physics.c ./src/engine/physics/physics_init.c
+	gcc $(FLAGS) -c $(INCLUDE) $^
+
+time.o: ./src/engine/time/time.c
 	gcc $(FLAGS) -c $(INCLUDE) $^
 
 clean:
