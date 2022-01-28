@@ -21,6 +21,8 @@ typedef struct input_state {
     Key_State right;
     Key_State jump;
     Key_State jump_last_frame;
+    int mouse_x;
+    int mouse_y;
 } Input_State;
 
 Input_State *input_init(void);
