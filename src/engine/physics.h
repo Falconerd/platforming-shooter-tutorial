@@ -20,6 +20,7 @@ typedef struct body {
     vec2 velocity;
     uint8_t is_static;
     uint8_t is_active;
+    uint8_t is_grounded;
 } Body;
 
 struct physics_state {
@@ -29,7 +30,7 @@ struct physics_state {
 };
 
 uint8_t aabb_intersect_aabb(AABB a, AABB b);
-uint8_t aabb_intersect_aabb_moving(AABB a, AABB b, vec2 va, vec2 vb, float *tfirst, float *tlast);
+uint8_t aabb_intersect_aabb_moving(AABB a, AABB b, vec2 va, vec2 vb, float *tfirst, float *tlast, float *nx, float *ny);
 
 Physics_State *physics_init(void);
 void physics_update(float delta_time);

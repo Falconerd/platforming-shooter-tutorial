@@ -3,6 +3,9 @@
 
 // NOTE: DELETE ME
 #include <stdio.h>
+#include "../render.h"
+
+#include "../util.h"
 
 static Physics_State physics_state;
 
@@ -21,10 +24,15 @@ uint8_t aabb_intersect_aabb(AABB a, AABB b) {
     return 1;
 }
 
-uint8_t aabb_intersect_aabb_moving(AABB a, AABB b, vec2 va, vec2 vb, float *tfirst, float *tlast) {
+uint8_t aabb_intersect_aabb_moving(AABB a, AABB b, vec2 va, vec2 vb, float *tfirst, float *tlast, float *nx, float *ny) {
+    float dx = a.position[0] - b.position[0];
+    float px = a.half_size[0] + b.half_size[0] - fabsf(dx);
+    float dy = a.position[1] - b.position[1];
+    float py = a.half_size[1] + b.half_size[1] - fabsf(dy);
+
     if (aabb_intersect_aabb(a, b)) {
         *tfirst = *tlast = 0.f;
-        return 1;
+        goto finish;
     }
 
     vec2 v;
@@ -55,6 +63,10 @@ uint8_t aabb_intersect_aabb_moving(AABB a, AABB b, vec2 va, vec2 vb, float *tfir
         if (*tfirst > *tlast) return 0;
     }
 
+finish:
+    *nx = px < py ? fsignf(a.position[0] - b.position[0]) : 0.f;
+    *ny = px >= py ? fsignf(a.position[1] - b.position[1]) : 0.f;
+
     return 1;
 }
 
@@ -64,12 +76,17 @@ void physics_update(float delta_time) {
 
         if (!a->is_active) continue;
 
+        // Static bodies do not collide with each other.
+        // They also do not use gravity, velocity.
         if (!a->is_static) {
             a->velocity[1] += GRAVITY;
             if (a->velocity[1] < TERMINAL_VELOCITY)
                 a->velocity[1] = TERMINAL_VELOCITY;
 
-            uint8_t hit;
+            if (a->velocity[1] > 0.f)
+                a->is_grounded = 0;
+
+            uint8_t hit_static = 0;
 
             for (uint32_t j = 0; j <= physics_state.body_max; ++j) {
                 if (i == j) continue;
@@ -79,20 +96,53 @@ void physics_update(float delta_time) {
                 if (!b->is_active) continue;
 
                 float tfirst, tlast;
+                float nx = 0.f, ny = 0.f;
                 vec2 va, vb;
                 vec2_scale(va, a->velocity, delta_time);
                 vec2_scale(vb, b->velocity, delta_time);
 
-                hit = aabb_intersect_aabb_moving(a->aabb, b->aabb, va, vb, &tfirst, &tlast);
+                if (aabb_intersect_aabb_moving(a->aabb, b->aabb, va, vb, &tfirst, &tlast, &nx, &ny) && b->is_static) {
+                    hit_static = 1;
 
-                if (hit && b->is_static) {
-                    printf("%u hit %u\n", i, j);
-                    a->aabb.position[0] = a->aabb.position[0] + va[0] * tfirst;
-                    a->aabb.position[1] = a->aabb.position[1] + va[1] * tfirst;
+                    // Y normal of 1 means the top of an object was hit.
+                    if (ny == 1.f) {
+                        // Downward velocity means this body is falling.
+                        if (a->velocity[1] <= 0.f) {
+                            a->is_grounded = 1;
+
+                            // Set to gravity so that velocity is not accumulated while grounded.
+                            // Otherwise the body would fall at TERMINAL_VELOCITY as soon as it moves
+                            // off a platform.
+                            a->velocity[1] = GRAVITY;
+                        }
+                        // If velocity is upward, this body should try to get unstuck from the ground.
+                        else {
+                            a->is_grounded = 0;
+                            hit_static = 0;
+                        }
+                    }
+
+                    // Immediately cut y velocity when hitting the bottom of an object.
+                    if (ny == -1.f) {
+                        if (a->velocity[1] > 0.f) {
+                            a->velocity[1] = 0;
+                            // Push a just outside so it doesn't get stuck in the roof.
+                            a->aabb.position[1] = (a->aabb.position[1] + va[1] * tfirst) -1.f;
+                        }
+                    } else {
+                        float tremainder = 1.f - tfirst;
+                        float dp = (a->velocity[0] * ny + a->velocity[1] * nx) * tremainder;
+
+                        a->aabb.position[0] += va[0] * tfirst + dp * ny * delta_time;
+                        a->aabb.position[1] += va[1] * tfirst + dp * nx * delta_time;
+                    }
                 }
+
+                if (i == 0)
+                    printf("nx: %2.f, ny: %2.f\n", nx, ny);
             }
 
-            if (!hit) {
+            if (!hit_static) {
                 a->aabb.position[0] += a->velocity[0] * delta_time;
                 a->aabb.position[1] += a->velocity[1] * delta_time;
             }
