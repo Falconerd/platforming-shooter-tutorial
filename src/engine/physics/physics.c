@@ -47,6 +47,11 @@ uint8_t aabb_intersect_aabb_moving(AABB a, AABB b, vec2 va, vec2 vb, float *tfir
     vec2_add(amax, a.position, a.half_size);
     vec2_add(bmax, b.position, b.half_size);
 
+    render_quad(amin, (vec2){2.f, 2.f}, RED);
+    render_quad(amax, (vec2){2.f, 2.f}, WHITE);
+    render_quad(bmin, (vec2){2.f, 2.f}, BLUE);
+    render_quad(bmax, (vec2){2.f, 2.f}, GREEN);
+
     for (uint8_t i = 0; i < 2; ++i) {
         if (v[i] < 0.f) {
             if (bmax[i] < amin[i]) return 0;
@@ -103,46 +108,17 @@ void physics_update(float delta_time) {
 
                 if (aabb_intersect_aabb_moving(a->aabb, b->aabb, va, vb, &tfirst, &tlast, &nx, &ny) && b->is_static) {
                     hit_static = 1;
-
-                    // Y normal of 1 means the top of an object was hit.
-                    if (ny == 1.f) {
-                        // Downward velocity means this body is falling.
-                        if (a->velocity[1] <= 0.f) {
-                            a->is_grounded = 1;
-
-                            // Set to gravity so that velocity is not accumulated while grounded.
-                            // Otherwise the body would fall at TERMINAL_VELOCITY as soon as it moves
-                            // off a platform.
-                            a->velocity[1] = GRAVITY;
-                        }
-                        // If velocity is upward, this body should try to get unstuck from the ground.
-                        else {
-                            a->is_grounded = 0;
-                            hit_static = 0;
-                        }
-                    }
-
-                    // Immediately cut y velocity when hitting the bottom of an object.
-                    if (ny == -1.f) {
-                        if (a->velocity[1] > 0.f) {
-                            a->velocity[1] = 0;
-                            // Push a just outside so it doesn't get stuck in the roof.
-                            a->aabb.position[1] = (a->aabb.position[1] + va[1] * tfirst) -1.f;
-                        }
-                    } else {
-                        float tremainder = 1.f - tfirst;
-                        float dp = (a->velocity[0] * ny + a->velocity[1] * nx) * tremainder;
-
-                        a->aabb.position[0] += va[0] * tfirst + dp * ny * delta_time;
-                        a->aabb.position[1] += va[1] * tfirst + dp * nx * delta_time;
-                    }
+                    render_quad(a->aabb.position, a->aabb.half_size, GREEN);
+                    render_quad(b->aabb.position, b->aabb.half_size, WHITE);
+                    printf("%u hit %u. t: %2.f %2.f\n", i, j, tfirst, tlast);
                 }
 
                 if (i == 0)
                     printf("nx: %2.f, ny: %2.f\n", nx, ny);
             }
 
-            if (!hit_static) {
+            if (hit_static) {
+            } else {
                 a->aabb.position[0] += a->velocity[0] * delta_time;
                 a->aabb.position[1] += a->velocity[1] * delta_time;
             }

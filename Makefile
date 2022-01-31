@@ -1,4 +1,4 @@
-FLAGS = -std=c99 -g3 -pedantic -Wall -Wextra -Werror
+FLAGS = -std=c99 -g3 -O0 -fsanitize=leak -pedantic -Wall -Wextra -Werror
 INCLUDE = -I./deps/include
 LIBS = -lSDL2
 
