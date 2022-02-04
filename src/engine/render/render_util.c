@@ -4,8 +4,8 @@
 #include "../io.h"
 
 uint32_t render_shader_create(const char *vert_path, const char *frag_path) {
-    int success;
-    char log[512];
+	int success;
+	char log[512];
 
 	char *vertex_source = io_file_read(vert_path);
 	if (!vertex_source) {
@@ -18,8 +18,8 @@ uint32_t render_shader_create(const char *vert_path, const char *frag_path) {
 	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
 	if (!success) {
 		glGetShaderInfoLog(vertex_shader, 512, NULL, log);
-        printf("Error compiling vertex shader. %s\n", log);
-        exit(1);
+		printf("Error compiling vertex shader. %s\n", log);
+		exit(1);
 	}
 
 	char *fragment_source = io_file_read(frag_path);
@@ -33,8 +33,8 @@ uint32_t render_shader_create(const char *vert_path, const char *frag_path) {
 	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
 	if (!success) {
 		glGetShaderInfoLog(fragment_shader, 512, NULL, log);
-        printf("Error compiling fragment shader. %s\n", log);
-        exit(1);
+		printf("Error compiling fragment shader. %s\n", log);
+		exit(1);
 	}
 
 	uint32_t shader = glCreateProgram();
@@ -44,8 +44,8 @@ uint32_t render_shader_create(const char *vert_path, const char *frag_path) {
 	glGetProgramiv(shader, GL_LINK_STATUS, &success);
 	if (!success) {
 		glGetProgramInfoLog(shader, 512, NULL, log);
-        printf("Error linking shader. %s\n", log);
-        exit(1);
+		printf("Error linking shader. %s\n", log);
+		exit(1);
 	}
 
 	free(vertex_source);

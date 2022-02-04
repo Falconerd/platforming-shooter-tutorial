@@ -12,22 +12,22 @@
 typedef struct physics_state Physics_State;
 
 typedef struct aabb {
-    vec2 position;
-    vec2 half_size;
+	vec2 position;
+	vec2 half_size;
 } AABB;
 
 typedef struct body {
-    AABB aabb;
-    vec2 velocity;
-    uint8_t is_static;
-    uint8_t is_active;
-    uint8_t is_grounded;
+	AABB aabb;
+	vec2 velocity;
+	uint8_t is_static;
+	uint8_t is_active;
+	uint8_t is_grounded;
 } Body;
 
 struct physics_state {
-    uint32_t body_count;
-    uint32_t body_max;
-    Body *bodies;
+	uint32_t body_count;
+	uint32_t body_max;
+	Body *bodies;
 };
 
 uint8_t aabb_intersect_aabb(AABB a, AABB b);
