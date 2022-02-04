@@ -2,6 +2,7 @@
 #define INPUT_H
 
 #include <stdlib.h>
+#include <stdint.h>
 
 typedef enum input_key {
     INPUT_KEY_LEFT,

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <inttypes.h>
 #include "../entity.h"
 
 static Entity_State entity_state;

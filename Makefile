@@ -1,8 +1,8 @@
-FLAGS = -std=c99 -g3 -O0 -fsanitize=leak -pedantic -Wall -Wextra -Werror
-INCLUDE = -I./deps/include
-LIBS = -lSDL2
+FLAGS = -std=c99 -g3 -O0 -pedantic -Wall -Wextra -Werror -ldl
+INCLUDE = -I./deps/include -I/usr/include/SDL2 -D_REENTRANT
+LIBS = -L/usr/lib -pthread -lSDL2
 
-build: ./src/main.c ./deps/src/glad.c ./io.o ./render.o ./render_init.o ./render_util.o ./input.o ./config.o ./config_init.o ./util.o ./physics.o ./physics_init.o ./time.o ./entity.o
+build: ./src/main.c ./deps/src/gl.c ./io.o ./render.o ./render_init.o ./render_util.o ./input.o ./config.o ./config_init.o ./util.o ./physics.o ./physics_init.o ./time.o ./entity.o
 	gcc $(FLAGS) $(INCLUDE) $(LIBS) $^
 
 io.o: ./src/engine/io/io.c

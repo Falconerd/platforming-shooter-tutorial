@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <linmath.h>
+#include <inttypes.h>
 
 #define MAX_BODIES 256
 #define GRAVITY -20

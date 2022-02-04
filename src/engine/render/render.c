@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <SDL2/SDL.h>
 #include <linmath.h>
 #include "render_internal.h"

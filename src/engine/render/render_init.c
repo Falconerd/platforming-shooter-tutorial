@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include "render_internal.h"
 
 SDL_Window *render_init_window(float width, float height) {
@@ -22,7 +22,7 @@ SDL_Window *render_init_window(float width, float height) {
 
 void render_init_context(SDL_Window *window) {
     SDL_GL_CreateContext(window);
-    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
+    if (!gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress)) {
         printf("Failed to init GLAD\n");
         exit(1);
     }

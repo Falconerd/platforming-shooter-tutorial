@@ -4,62 +4,67 @@
 #include "../config.h"
 #include "config_internal.h"
 #include "../input.h"
+#include "../util.h"
 
-static char *config_get_value(char *string) {
-    char *line = strdup(string);
-    char *curr = line;
+static char *config_buffer;
+static char *tmp_buffer;
+
+static char *config_get_value(const char *string) {
+    char *line = strstr(config_buffer, string);
+    if (!line) {
+        printf("Could not find config value '%s'. Try deleting config.ini to regenerate default settings. Exiting.\n", string);
+        exit(1);
+    }
+
+	memcpy(tmp_buffer, line, 99);
+
+    char *curr = tmp_buffer;
 
     while (*curr != '\n' && *curr != 0) {
         ++curr;
     }
     *curr = 0;
 
-    char *delimeter = strstr(line, "= ") ? "= " : "=";
-    strtok(line, delimeter);
+    char *delimeter = strstr(tmp_buffer, "= ") ? "= " : "=";
+    strtok(tmp_buffer, delimeter);
     char *value = strtok(NULL, delimeter);
+    size_t len = strlen(value);
 
-    return value;
+    memcpy(tmp_buffer, value, len + 1);
+    tmp_buffer[len] = 0;
+
+    return tmp_buffer;
 }
 
-static char *find(char *haystack, char *needle) {
-    char *result = strstr(haystack, needle);
-    if (!result) {
-        printf("Could not find config value '%s'. Try deleting config.ini to regenerate default settings. Exiting.\n", needle);
-        exit(1);
-    }
-    return result;
+static void load_controls() {
+    config_key_bind(INPUT_KEY_LEFT, config_get_value("left"));
+    config_key_bind(INPUT_KEY_RIGHT, config_get_value("right"));
+    config_key_bind(INPUT_KEY_JUMP, config_get_value("jump"));
+    config_key_bind(INPUT_KEY_SHOOT, config_get_value("shoot"));
 }
 
-static void load_controls(char *config_buffer) {
-    char *left = find(config_buffer, "left");
-    char *right = find(config_buffer, "right");
-    char *jump = find(config_buffer, "jump");
-    char *shoot = find(config_buffer, "shoot");
-
-    config_key_bind(INPUT_KEY_LEFT, config_get_value(left));
-    config_key_bind(INPUT_KEY_RIGHT, config_get_value(right));
-    config_key_bind(INPUT_KEY_JUMP, config_get_value(jump));
-    config_key_bind(INPUT_KEY_SHOOT, config_get_value(shoot));
-}
-
-static void load_display(Config_State *config_state, char *config_buffer) {
-    char *width = find(config_buffer, "width");
-    char *height = find(config_buffer, "height");
-    char *framerate = find(config_buffer, "framerate");
-
-    config_state->display_width = (float)atof(config_get_value(width));
-    config_state->display_height = (float)atof(config_get_value(height));
-    config_state->framerate = (float)atof(config_get_value(framerate));
+static void load_display(Config_State *config_state) {
+    config_state->display_width = (float)atof(config_get_value("width"));
+    config_state->display_height = (float)atof(config_get_value("height"));
+    config_state->framerate = (float)atof(config_get_value("framerate"));
 }
 
 int config_init_load(Config_State *config_state) {
-    char *config_buffer = io_file_read("./config.ini");
+    config_buffer = io_file_read("./config.ini");
     if (!config_buffer) {
         return 1;
     }
 
-    load_controls(config_buffer);
-    load_display(config_state, config_buffer);
+    tmp_buffer = malloc(100);
+    if (!tmp_buffer) {
+        return 1;
+    }
+
+    load_controls();
+    load_display(config_state);
+
+    free(config_buffer);
+    free(tmp_buffer);
 
     return 0;
 }
